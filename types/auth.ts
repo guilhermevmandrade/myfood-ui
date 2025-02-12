@@ -16,10 +16,9 @@ export interface RegisterRequest {
     weight: number;
     activityLevel: ActivityLevel;
 }
-  
+
 export interface AuthResponse {
     token: string;
     name: string;
     email: string;
 }
-  

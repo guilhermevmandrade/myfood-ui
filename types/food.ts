@@ -5,7 +5,7 @@ export interface FoodRequest {
     carbs: number;
     fats: number;
 }
-  
+
 export interface FoodResponse {
     foodId: number;
     name: string,

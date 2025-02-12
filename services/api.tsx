@@ -1,10 +1,20 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthResponse, LoginRequest, RegisterRequest } from "@/types/auth";
-import { DeleteUserRequest, GetUserResponse, UpdateUserRequest } from "@/types/user";
+import {
+  DeleteUserRequest,
+  GetUserResponse,
+  UpdateUserRequest,
+} from "@/types/user";
 import { FoodRequest, FoodResponse } from "@/types/food";
 import { MealFoodRequest, MealRequest, MealResponse } from "@/types/meal";
-import { DailyCaloriesRequest, DailyCaloriesResponse, MacrosPercentageRequest, MacrosPercentageResponse, NutritionalGoalRequest } from "@/types/goal";
+import {
+  DailyCaloriesRequest,
+  DailyCaloriesResponse,
+  MacrosPercentageRequest,
+  MacrosPercentageResponse,
+  NutritionalGoalRequest,
+} from "@/types/goal";
 import { WeightGoal } from "@/types/enums/weightGoal";
 
 const API_BASE_URL = "https://localhost:44352/api";
@@ -28,18 +38,24 @@ api.interceptors.request.use(async (config) => {
 // Funções para autenticação
 export const AuthService = {
   login: async (request: LoginRequest) => {
-    const response = await api.post<AuthResponse>("/auth/login", { request });
+    const response = await api.post<AuthResponse>("/auth/login", request);
     await AsyncStorage.setItem("token", response.data.token);
     return response.data;
   },
 
   register: async (request: RegisterRequest) => {
-    const response = await api.post("/auth/register", { request });
+    console.log(request);
+    const response = await api.post("/auth/register", request);
     return response.data;
   },
-  
+
   logout: async () => {
     await AsyncStorage.removeItem("token");
+  },
+
+  getToken: async () => {
+    const token = await AsyncStorage.getItem("token");
+    return token;
   },
 };
 
@@ -51,7 +67,7 @@ export const UserService = {
   },
 
   updateUser: async (request: UpdateUserRequest) => {
-    const response = await api.put("/users/me", { request });
+    const response = await api.put("/users/me", request);
     return response.data;
   },
 
@@ -64,7 +80,7 @@ export const UserService = {
 // Funções para CRUD de alimentos
 export const FoodService = {
   createFood: async (request: FoodRequest) => {
-    const response = await api.post("/foods", { request });
+    const response = await api.post("/foods", request);
     return response.data;
   },
 
@@ -79,7 +95,7 @@ export const FoodService = {
   },
 
   updateFood: async (request: FoodRequest, id: string) => {
-    const response = await api.put(`/foods/${id}`, { request });
+    const response = await api.put(`/foods/${id}`, request);
     return response.data;
   },
 
@@ -92,7 +108,7 @@ export const FoodService = {
 // Funções para gerenciamento de refeições
 export const MealService = {
   createMeal: async (request: MealRequest) => {
-    const response = await api.post("/meals", { request });
+    const response = await api.post("/meals", request);
     return response.data;
   },
 
@@ -107,7 +123,7 @@ export const MealService = {
   },
 
   updateMeal: async (request: MealRequest, id: string) => {
-    const response = await api.put(`/meals/${id}`, { request });
+    const response = await api.put(`/meals/${id}`, request);
     return response.data;
   },
 
@@ -116,15 +132,19 @@ export const MealService = {
     return response.data;
   },
 
-  addFoodToMeal: async (request: MealFoodRequest, id: string, foodId: string) => {
-    const response = await api.post(`/meals/${id}/foods/${foodId}`, { request });
+  addFoodToMeal: async (
+    request: MealFoodRequest,
+    id: string,
+    foodId: string
+  ) => {
+    const response = await api.post(`/meals/${id}/foods/${foodId}`, request);
     return response.data;
   },
 
   removeFoodFromMeal: async (id: string, foodId: string) => {
     const response = await api.delete(`/meals/${id}/foods/${foodId}`);
     return response.data;
-  }
+  },
 };
 
 // Funções para gerenciamento de metas nutricionais
@@ -145,7 +165,9 @@ export const NutritionalGoalService = {
   },
 
   getCaloriesSuggestion: async (weightGoal: WeightGoal) => {
-    const response = await api.get(`/goals/calories/suggestion/${weightGoal}`);
+    const response = await api.get<DailyCaloriesResponse>(
+      `/goals/calories/suggestion/${weightGoal}`
+    );
     return response.data;
   },
 

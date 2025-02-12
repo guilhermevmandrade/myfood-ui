@@ -18,9 +18,9 @@ export interface MealFoodResponse {
     mealFoodId: number;
     quantity: number;
     unit: MeasurementUnit;
-    food: FoodResponse; 
+    food: FoodResponse;
 }
-  
+
 export interface MealResponse {
     mealId: number;
     description: string;
