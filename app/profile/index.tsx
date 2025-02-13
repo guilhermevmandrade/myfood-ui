@@ -9,6 +9,7 @@ import {
 } from "@/constants/Options";
 import { NutritionalGoalService, UserService } from "@/services/api";
 import { router } from "expo-router";
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 

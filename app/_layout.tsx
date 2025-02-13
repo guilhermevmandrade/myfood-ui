@@ -3,6 +3,7 @@ import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import React from "react";
 import { useEffect } from "react";
 
 export { ErrorBoundary } from "expo-router";
@@ -43,11 +44,15 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen
-          name="profile"
+          name="profile/index"
           options={{
             presentation: "modal",
             title: "Perfil",
             animation: "simple_push",
+            headerStyle: {
+              backgroundColor: "#007bff",
+            },
+            headerTintColor: "#fff",
           }}
         />
       </Stack>
