@@ -11,10 +11,16 @@ interface StepPhysicalDataProps {
     height: string;
     weight: string;
   };
+  errors: {
+    genderError: string | null;
+    ageError: string | null;
+    heightError: string | null;
+    weightError: string | null;
+  };
   dispatch: React.Dispatch<{ field: string; value: string }>;
 }
 
-export default function StepPhysicalData({ formData, dispatch }: StepPhysicalDataProps) {
+export default function StepPhysicalData({ formData, errors, dispatch }: StepPhysicalDataProps) {
   return (
     <View>
       <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>
@@ -30,6 +36,7 @@ export default function StepPhysicalData({ formData, dispatch }: StepPhysicalDat
           { label: "Masculino", value: Gender.MALE },
           { label: "Feminino", value: Gender.FEMALE },
         ]}
+        errorMessage={errors.genderError}
       />
 
       <InputField
@@ -38,6 +45,7 @@ export default function StepPhysicalData({ formData, dispatch }: StepPhysicalDat
         onChangeText={(text: any) => dispatch({ field: "age", value: text })}
         placeholder="Digite sua idade"
         keyboardType="numeric"
+        errorMessage={errors.ageError}
       />
       <InputField
         label="Altura (em cm)"
@@ -45,6 +53,7 @@ export default function StepPhysicalData({ formData, dispatch }: StepPhysicalDat
         onChangeText={(text: any) => dispatch({ field: "height", value: text })}
         placeholder="Digite sua altura"
         keyboardType="numeric"
+        errorMessage={errors.heightError}
       />
       <InputField
         label="Peso (em kg)"
@@ -52,6 +61,7 @@ export default function StepPhysicalData({ formData, dispatch }: StepPhysicalDat
         onChangeText={(text: any) => dispatch({ field: "weight", value: text })}
         placeholder="Digite seu peso"
         keyboardType="numeric"
+        errorMessage={errors.weightError}
       />
     </View>
   );

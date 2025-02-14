@@ -6,22 +6,44 @@ interface StepActivityDataProps {
   formData: {
     activityLevel: number;
   };
+  errors: {
+    activityLevelError: string | null;
+  };
   dispatch: React.Dispatch<{ field: string; value: number }>;
 }
 
-export default function StepActivityData({ formData, dispatch }: StepActivityDataProps) {
+export default function StepActivityData({ formData, errors, dispatch }: StepActivityDataProps) {
   return (
     <View>
       <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>
         Nível de Atividade:
       </Text>
-
       {[
-        { level: ActivityLevel.SEDENTARY, label: "Sedentário", description: "Pouco ou nenhum exercício" },
-        { level: ActivityLevel.LIGHT, label: "Pouco ativo", description: "Exercício leve (1 a 3 dias por semana)" },
-        { level: ActivityLevel.MODERATE, label: "Moderadamente ativo", description: "Exercício moderado (3 a 5 dias por semana)" },
-        { level: ActivityLevel.ACTIVE, label: "Muito ativo", description: "Exercício intenso (6 a 7 dias por semana)" },
-        { level: ActivityLevel.ATHLETE, label: "Extremamente ativo", description: "Atleta ou trabalho físico pesado" },
+        {
+          level: ActivityLevel.SEDENTARY,
+          label: "Sedentário",
+          description: "Pouco ou nenhum exercício",
+        },
+        {
+          level: ActivityLevel.LIGHT,
+          label: "Pouco ativo",
+          description: "Exercício leve (1 a 3 dias por semana)",
+        },
+        {
+          level: ActivityLevel.MODERATE,
+          label: "Moderadamente ativo",
+          description: "Exercício moderado (3 a 5 dias por semana)",
+        },
+        {
+          level: ActivityLevel.ACTIVE,
+          label: "Muito ativo",
+          description: "Exercício intenso (6 a 7 dias por semana)",
+        },
+        {
+          level: ActivityLevel.ATHLETE,
+          label: "Extremamente ativo",
+          description: "Atleta ou trabalho físico pesado",
+        },
       ].map(({ level, label, description }) => (
         <TouchableOpacity
           key={level}
@@ -33,7 +55,10 @@ export default function StepActivityData({ formData, dispatch }: StepActivityDat
             backgroundColor: formData.activityLevel === level ? "#E6E6E6" : "transparent",
             borderRadius: 8,
           }}
-          onPress={() => dispatch({ field: "activityLevel", value: level })}
+          onPress={() => {
+            dispatch({ field: "activityLevel", value: level });
+            errors.activityLevelError = null;
+          }}
         >
           <View
             style={{
@@ -58,13 +83,19 @@ export default function StepActivityData({ formData, dispatch }: StepActivityDat
               />
             )}
           </View>
-          
+
           <View style={{ flexDirection: "column" }}>
             <Text style={{ fontWeight: "600", marginBottom: 4 }}>{label}</Text>
             <Text style={{ color: "#A9A9A9" }}>{description}</Text>
           </View>
         </TouchableOpacity>
       ))}
+
+      {errors.activityLevelError && (
+        <Text style={{ color: "red", marginTop: 10, marginLeft: 10 }}>
+          {errors.activityLevelError}
+        </Text>
+      )}
     </View>
   );
 }

@@ -1,35 +1,53 @@
 import { InputField } from "@/components/InputField";
 import { AuthService } from "@/services/api";
 import { LoginRequest } from "@/types/auth";
+import { validateEmail, validatePasswordLogin } from "@/utils/userValidator";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+const initialFormState = {
+  email: "",
+  password: "",
+};
+
+const initialErrorState = {
+  emailError: null,
+  passwordError: null,
+};
+
+function formReducer(state: typeof initialFormState, action: { field: string; value: string }) {
+  return { ...state, [action.field]: action.value };
+}
+
+function errorReducer(
+  state: typeof initialErrorState,
+  action: { field: string; error: string | null }
+) {
+  return { ...state, [action.field]: action.error };
+}
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [formState, formDispatch] = useReducer(formReducer, initialFormState);
+  const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
   const handleLogin = async () => {
-    if (!validateEmail(email)) {
-      Alert.alert("Erro", "Por favor, insira um email válido.");
-      return;
-    }
+    const emailValidationError = validateEmail(formState.email);
+    const passwordValidationError = validatePasswordLogin(formState.password);
 
-    if (password.trim().length === 0) {
-      Alert.alert("Erro", "A senha não pode estar vazia.");
+    errorDispatch({ field: "emailError", error: emailValidationError });
+    errorDispatch({ field: "passwordError", error: passwordValidationError });
+
+    if (emailValidationError || passwordValidationError) {
       return;
     }
 
     try {
       setIsLoading(true);
-      const credentials: LoginRequest = { email, password };
+      const credentials: LoginRequest = { email: formState.email, password: formState.password };
       await AuthService.login(credentials);
       router.push("/(tabs)");
     } catch (error) {
@@ -55,23 +73,23 @@ export default function LoginScreen() {
           <InputField
             label="E-mail"
             placeholder="Digite seu email"
-            value={email}
-            onChangeText={setEmail}
+            value={formState.email}
+            onChangeText={(text) => formDispatch({ field: "email", value: text })}
             keyboardType="email-address"
+            errorMessage={errorState.emailError}
           />
 
           <InputField
             label="Senha"
             placeholder="Digite sua senha"
-            value={password}
-            onChangeText={setPassword}
+            value={formState.password}
+            onChangeText={(text) => formDispatch({ field: "password", value: text })}
             secureTextEntry
+            errorMessage={errorState.passwordError}
           />
-
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
-
           <View style={{ marginTop: 20, alignItems: "center" }}>
             <TouchableOpacity onPress={() => router.push("/auth/register")}>
               <Text style={{ color: "blue" }}>Não tem conta? Cadastre-se</Text>
@@ -84,15 +102,6 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 15,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    color: "#333",
-    backgroundColor: "#fff",
-  },
   button: {
     backgroundColor: "#007bff",
     paddingVertical: 12,
@@ -105,8 +114,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-  },
-  buttonOpacity: {
-    opacity: 0.8,
   },
 });
