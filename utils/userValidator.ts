@@ -69,8 +69,8 @@ export const validateWeight = (weight: string): string | null => {
   return null;
 };
 
-export const validateActivityLevel = (activityLevel: number): string | null => {
-  if (activityLevel === null) return "O nível de atividade é obrigatório.";
+export const validateActivityLevel = (activityLevel: string): string | null => {
+  if (!activityLevel) return "O nível de atividade é obrigatório.";
 
   const validLevels = [
     ActivityLevel.SEDENTARY,
@@ -80,7 +80,7 @@ export const validateActivityLevel = (activityLevel: number): string | null => {
     ActivityLevel.ATHLETE,
   ];
 
-  if (!validLevels.includes(activityLevel)) {
+  if (isNaN(parseInt(activityLevel)) || !validLevels.includes(parseInt(activityLevel))) {
     return "Selecione um nível de atividade válido.";
   }
   return null;

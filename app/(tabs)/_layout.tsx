@@ -22,6 +22,27 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="goal"
+        options={{
+          title: "Meta",
+          tabBarIcon: ({ color }) => <TabBarIcon name="flag-checkered" color={color} />,
+          headerRight: () => (
+            <Link href="/profile" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="user-circle"
+                    size={25}
+                    color={Colors["light"].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: "Início",
@@ -46,8 +67,20 @@ export default function TabLayout() {
         name="foods"
         options={{
           title: "Alimentos",
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="cutlery" color={color} />
+          tabBarIcon: ({ color }) => <TabBarIcon name="cutlery" color={color} />,
+          headerRight: () => (
+            <Link href="/profile" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="user-circle"
+                    size={25}
+                    color={Colors["light"].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
           ),
         }}
       />

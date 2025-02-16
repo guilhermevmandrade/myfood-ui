@@ -1,52 +1,49 @@
 import EditEnumModal from "@/components/EditEnumModal";
 import EditNumberModal from "@/components/EditNumberModal";
+import PopupMessage from "@/components/popupMessage";
 import ProfileField from "@/components/ProfileField";
 import { fieldLabels } from "@/constants/Labels";
-import {
-  activityLevelOptions,
-  genderOptions,
-  weightGoalOptions,
-} from "@/constants/Options";
-import { NutritionalGoalService, UserService } from "@/services/api";
+import { activityLevelOptions, genderOptions } from "@/constants/Options";
+import useApiRequest from "@/hooks/useApiRequest";
+import { UserService } from "@/services/api";
+import { UpdateUserRequest } from "@/types/user";
 import { router } from "expo-router";
 import React from "react";
 import { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ProfileModal() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedField, setSelectedField] = useState<string>("");
   const [user, setUser] = useState<any>(null);
-  const [goal, setGoal] = useState<any>(null);
   const [tempValue, setTempValue] = useState("");
   const translateY = useRef(new Animated.Value(300)).current;
 
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupStatus, setPopupStatus] = useState<number | null>(null);
+
+  const { isLoading, makeRequest } = useApiRequest();
+
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUser = async () => {
       try {
-        const [userData, goalData] = await Promise.all([
-          UserService.getUser(),
-          NutritionalGoalService.getDailyCalories(),
-        ]);
-        setUser(userData);
-        setGoal(goalData);
+        const user = await UserService.getUser();
+        setUser(user.data);
       } catch (error) {
         router.push("/auth/login");
       }
     };
-    fetchUserData();
+
+    fetchUser();
   }, []);
 
-  const isEnumField = (field: keyof typeof user | keyof typeof goal) => {
-    return (
-      ["gender", "activityLevel"].includes(String(field)) ||
-      ["weightGoal"].includes(String(field))
-    );
+  const isEnumField = (field: keyof typeof user) => {
+    return ["gender", "activityLevel"].includes(String(field));
   };
 
-  const openEditModal = (field: keyof typeof user | keyof typeof goal) => {
+  const openEditModal = (field: keyof typeof user) => {
     setSelectedField(String(field));
-    setTempValue(user?.[field] || goal?.[field] || "");
+    setTempValue(user?.[field] || "");
     setModalVisible(true);
     Animated.timing(translateY, {
       toValue: 0,
@@ -67,27 +64,15 @@ export default function ProfileModal() {
   };
 
   const handleSave = () => {
-    if (!selectedField || (!user && !goal)) return;
+    if (!selectedField || !user) return;
 
-    if (selectedField in user) {
-      setUser({ ...user, [selectedField]: tempValue });
-    } else {
-      setGoal({ ...goal, [selectedField]: tempValue });
-    }
-
+    setUser({ ...user, [selectedField]: tempValue });
     closeModal();
   };
 
   const handleSelect = (value: string) => {
-    console.log(goal);
-
-    if (selectedField in user) {
-      setUser({ ...user, [selectedField]: value });
-    } else {
-      setGoal({ ...goal, [selectedField]: value });
-    }
+    setUser({ ...user, [selectedField]: value });
     closeModal();
-    console.log(goal);
   };
 
   const getOptionsForField = (field: string) => {
@@ -96,14 +81,36 @@ export default function ProfileModal() {
         return genderOptions;
       case "activityLevel":
         return activityLevelOptions;
-      case "weightGoal":
-        return weightGoalOptions;
       default:
         return [];
     }
   };
 
-  if (!user || !goal) return null;
+  const handleUpdate = async () => {
+    const userCredentials: UpdateUserRequest = {
+      ...user,
+      age: parseInt(user.age),
+      height: parseInt(user.height),
+      weight: parseInt(user.weight),
+      gender: parseInt(user.gender),
+      activityLevel: parseInt(user.activityLevel),
+    };
+
+    const response = await makeRequest(() => UserService.updateUser(userCredentials), {
+      successMessage: "Dados atualizados com sucesso!",
+      errorMessage: "Erro ao atualizar dados. Tente novamente.",
+    });
+
+    if (response.success) {
+      setPopupMessage(response.message);
+      setPopupStatus(response.status);
+    } else {
+      setPopupMessage(response.message);
+      setPopupStatus(response.status);
+    }
+  };
+
+  if (!user) return null;
 
   return (
     <View style={styles.container}>
@@ -132,20 +139,23 @@ export default function ProfileModal() {
         onPress={() => openEditModal("age")}
       />
       <ProfileField
-        label={fieldLabels["weightGoal"]}
-        value={weightGoalOptions[goal.weightGoal]?.label || ""}
-        onPress={() => openEditModal("weightGoal")}
-      />
-      <ProfileField
         label={fieldLabels["activityLevel"]}
         value={activityLevelOptions[user.activityLevel]?.label || ""}
         onPress={() => openEditModal("activityLevel")}
       />
-      <ProfileField
-        label={fieldLabels["dailyCalories"]}
-        value={goal.dailyCalories}
-        onPress={() => openEditModal("dailyCalories")}
-      />
+
+      <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+        <Text style={styles.buttonText}>Guardar</Text>
+      </TouchableOpacity>
+
+      <Modal visible={!!popupMessage} transparent animationType="none">
+        <PopupMessage
+          message={popupMessage}
+          onClose={() => setPopupMessage("")}
+          router={router}
+          status={popupStatus}
+        />
+      </Modal>
 
       {isEnumField(selectedField) ? (
         <EditEnumModal
@@ -191,5 +201,22 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     height: 1,
     backgroundColor: "#ededed",
+  },
+  button: {
+    backgroundColor: "#007bff",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 3,
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

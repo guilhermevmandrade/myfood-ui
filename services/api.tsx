@@ -40,13 +40,12 @@ export const AuthService = {
   login: async (request: LoginRequest) => {
     const response = await api.post<AuthResponse>("/auth/login", request);
     await AsyncStorage.setItem("token", response.data.token);
-    return response.data;
+    return response;
   },
 
   register: async (request: RegisterRequest) => {
-    console.log(request);
     const response = await api.post("/auth/register", request);
-    return response.data;
+    return response;
   },
 
   logout: async () => {
@@ -63,12 +62,12 @@ export const AuthService = {
 export const UserService = {
   getUser: async () => {
     const response = await api.get<GetUserResponse>("/users/me");
-    return response.data;
+    return response;
   },
 
   updateUser: async (request: UpdateUserRequest) => {
     const response = await api.put("/users/me", request);
-    return response.data;
+    return response;
   },
 
   deleteUser: async (request: DeleteUserRequest) => {
@@ -150,17 +149,18 @@ export const MealService = {
 // Funções para gerenciamento de metas nutricionais
 export const NutritionalGoalService = {
   createGoal: async (request: NutritionalGoalRequest) => {
-    const response = await api.post("/goals", { request });
-    return response.data;
+    console.log(request);
+    const response = await api.post("/goals", request);
+    return response;
   },
 
   getDailyCalories: async () => {
     const response = await api.get<DailyCaloriesResponse>("/goals/calories");
-    return response.data;
+    return response;
   },
 
   updateDailyCalories: async (request: DailyCaloriesRequest) => {
-    const response = await api.put("/goals/calories", { request });
+    const response = await api.put("/goals/calories", request);
     return response.data;
   },
 
@@ -168,16 +168,16 @@ export const NutritionalGoalService = {
     const response = await api.get<DailyCaloriesResponse>(
       `/goals/calories/suggestion/${weightGoal}`
     );
-    return response.data;
+    return response;
   },
 
   getMacrosPercentage: async () => {
     const response = await api.get<MacrosPercentageResponse>("/goals/macros");
-    return response.data;
+    return response;
   },
 
   updateMacrosPercentage: async (request: MacrosPercentageRequest) => {
-    const response = await api.put("/goals/macors", { request });
+    const response = await api.put("/goals/macors", request);
     return response.data;
   },
 };

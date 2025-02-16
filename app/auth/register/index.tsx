@@ -1,3 +1,5 @@
+import PopupMessage from "@/components/popupMessage";
+import useApiRequest from "@/hooks/useApiRequest";
 import { RegisterRequest } from "@/types/auth";
 import {
   validateActivityLevel,
@@ -15,6 +17,7 @@ import React, { useEffect, useReducer, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -36,7 +39,7 @@ const initialState = {
   age: "",
   height: "",
   weight: "",
-  activityLevel: -1,
+  activityLevel: "",
 };
 
 function formReducer(
@@ -49,7 +52,6 @@ function formReducer(
 export default function RegisterScreen() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [formData, dispatch] = useReducer(formReducer, initialState);
   const [errors, setErrors] = useState({
@@ -63,6 +65,11 @@ export default function RegisterScreen() {
     weightError: null as string | null,
     activityLevelError: null as string | null,
   });
+
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupStatus, setPopupStatus] = useState<number | null>(null);
+
+  const { isLoading, makeRequest } = useApiRequest();
 
   useEffect(() => {
     if (isValidated) {
@@ -133,16 +140,20 @@ export default function RegisterScreen() {
       height: parseInt(formData.height),
       weight: parseInt(formData.weight),
       gender: parseInt(formData.gender),
+      activityLevel: parseInt(formData.activityLevel),
     };
 
-    try {
-      setIsLoading(true);
-      await AuthService.register(userCredentials);
-      router.push("/(tabs)");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+    const response = await makeRequest(() => AuthService.register(userCredentials), {
+      successMessage: "Cadastro realizado com sucesso!",
+      errorMessage: "Erro ao cadastrar. Tente novamente.",
+    });
+
+    if (response.success) {
+      setPopupMessage(response.message);
+      setPopupStatus(response.status);
+    } else {
+      setPopupMessage(response.message);
+      setPopupStatus(response.status);
     }
   };
 
@@ -173,7 +184,7 @@ export default function RegisterScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>Cadastro</Text>
 
         {isLoading && (
@@ -223,6 +234,16 @@ export default function RegisterScreen() {
           </>
         )}
       </ScrollView>
+
+      <Modal visible={!!popupMessage} transparent animationType="none">
+        <PopupMessage
+          message={popupMessage}
+          onClose={() => setPopupMessage("")}
+          redirectTo="/auth/login"
+          router={router}
+          status={popupStatus}
+        />
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

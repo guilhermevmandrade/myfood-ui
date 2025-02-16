@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, FlatList, Text, TextInput, View } from "react-native";
 import { FoodService } from "../../services/api";
 
-export default function FoodsScreen() {
+export default function FoodsTab() {
   const [foods, setFoods] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");

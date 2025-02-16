@@ -18,7 +18,7 @@ export const activityLevelOptions: Option[] = [
 export const weightGoalOptions: Option[] = [
   { label: "Perda de Peso", value: WeightGoal.LOSE },
   { label: "Manutenção", value: WeightGoal.MAINTAIN },
-  { label: "Ganho de Massa", value: WeightGoal.GAIN },
+  { label: "Ganho de Peso", value: WeightGoal.GAIN },
 ];
 
 export const genderOptions: Option[] = [
