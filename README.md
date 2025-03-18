@@ -21,18 +21,7 @@ O **MyFood UI** é a interface de usuário desenvolvida em **React Native** para
 
 ## Configuração da API
 
-A comunicação com a API é realizada através do arquivo `services/api.js`. A API base é configurada com o endereço `https://localhost:44352/api`. Para realizar as chamadas à API, é utilizado o **Axios**, com a configuração do **JWT Token** sendo feito de forma automática a cada requisição, quando o token é encontrado no **AsyncStorage**.
-
-```javascript
-const API_BASE_URL = "https://localhost:44352/api";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-```
+A comunicação com a API é realizada através do arquivo `services/api.js`. A API base é configurada com o endereço `https://localhost:44352/api`. Para realizar as chamadas à API, é utilizado o **Axios**, com a configuração do **JWT Token** sendo feito de forma automática a cada requisição, quando o token é encontrado no **AsyncStorage**. Caso a API esteja em outro endereço, atualize a configuração no arquivo `config/config.js`.
 
 As principais funções da API são:
 
